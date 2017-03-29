@@ -1,8 +1,8 @@
-/*	dynamicArray.c: Dynamic Array implementation. */
+/*	dynArr.c: Dynamic Array implementation. */
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "dynamicArray.h"
+#include "dynArr.h"
 
 struct DynArr
 {

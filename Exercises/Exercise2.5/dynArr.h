@@ -1,4 +1,4 @@
-/* 	dynamicArray.h : Dynamic Array implementation. */
+/* 	dynArr.h : Dynamic Array implementation. */
 #include<math.h>
 
 #ifndef DYNAMIC_ARRAY_INCLUDED

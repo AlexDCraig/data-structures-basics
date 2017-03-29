@@ -1,4 +1,4 @@
-#include "linkedList.h"
+#include "LL.h"
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>

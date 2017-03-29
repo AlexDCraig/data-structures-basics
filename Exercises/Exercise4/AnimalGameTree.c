@@ -1,3 +1,5 @@
+// Play a game where we find the animal the user is thinking of through a sequence of questions.
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
