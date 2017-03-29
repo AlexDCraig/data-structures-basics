@@ -1,0 +1,109 @@
+amortizedAnalysis by Alex Hoffer
+
+1.The push operation on this structure will follow a simple pattern:
+	- push 8x elements into array: 8x * O(1), where x represents the resizing factor needed
+	- multiply capacity by 2, allocate a new structure, copy over all m elements over to a new array: O(m), 
+		where m is the current size of the old array [note: m < n, if n is total number of elements we want pushed]
+	- repeat until n is reached
+
+	... so let's apply it...
+
+	a) n = 16: 24 cost units arising from...
+		i) 8 cost units from pushing 8 elements.
+		ii) RESIZE array to 16. Size is 8, so this will cost 8 units. CU = 16.
+		iii) 8 cost units from pushing 8 more elements. CU = 24.
+		16 pushes completed.
+
+	b) n = 32: Recall after 16 pushes there's 24 cost units...
+		i) RESIZE array to 32. Size is 16, so this will cost 16 units. CU = 40.
+		ii) push 16 elements (16 cost units). CU = 40 + 16 = 56.
+		All together, this will cost 56 units. Allowing us to conclude that as
+		n gets arbitrarily long...
+
+	c) The total procedure is O(n) complexity. As n grows, the total amount of time required to 
+	execute the procedure is dependent twice on n: once, as a result of there being n * O(1) operations
+	necessary, and twice, as a result of every resize having an execution requirement
+	of n divided by some factor of 8. Since both of these components of the overall procedure
+	rely on processing (some constant) * (n) elements and we can ignore the constant, it is apparent
+	the dominating function of this procedure is O(n).
+
+	However, the average case of pushing a single new element as n grows arbitrarily large is O(1+), however
+	O(1) is largely adequate. This is because as n grows, and the capacity keeps doubling, we end up with a capacity
+	that is massive, and so pushing a new element into the array is not likely to be met with size = capacity. 
+	Therefore, I say O(1+) because there is a possibility that pushing an element maxes out the array, but that
+	possibility is constantly shrinking as n grows larger and the array becomes larger.
+
+
+2. Let's start with pushing 16 elements (i.e. n = 16). Our first 8 pushes are freebies (i.e. purely 0(1)). Now we have
+a capacity of 8 and a size of 8. We must add 2 to our capacity and invent a new dynamic array which can hold this capacity.
+We must transfer over our existing array of 8 to this new array. This operation is O(n), that is, the time necessary
+for its execution is linear to the number of elements the array contains. Armed with this new array of capacity 10, add
+an element at position 8 (O(1)), increment size, then add an element at position 9 and increment size. Note we must resize
+every two element additions, and the worksheet advises I include the resize and add to a new array as one operation of O(n + 1)
+or O(n) complexity -- this means that the process of pushing in this array beyond the first 8 pushes will be a matter
+of oscillation between O(1) and O(n + 1) [ or O(n) ] until the total number of desired pushes is reached. 
+
+	Using this logic, to push n elements, it would require... :
+
+	a) n = 16: 60 cost units. We must resize the array a total of 4 times (once when capacity = size = 8 and then
+	for each time capacity = capacity + 2 and then size = capacity). For convenience, instead of considering each
+	resize as costing current size + 1 units to accomodate for the new addition, let's split it up to each
+	resizing being simply current size units and then moving the constant O(1) operation into the pile with the
+	rest of the constant operations. This means that each push no matter what will require a 1 cost unit. This gives
+	us a baseline of n cost units, in this case we automatically have 16 cost units (1 for each push) before we consider
+	the cost of resizing. So each resize, and we have four here, will simply cost O(m), where m is the current size
+	of the array to be copied over. Here's the arithmetic we need in this case to calculate the cost of each resize:
+		
+		i) when copying array of size = 8, 8 cost units
+		ii) size = 10, 10 cost units
+		iii) size = 12, 12 cost units
+		iv) size = 14, 14 cost units
+
+	... accounting for a total of 8 + 10 + 12 + 14 = 44 cost units for resizing. Recall 16 cost units for our O(1) ops,
+	and we have 44 + 16 = 60 total cost units for when n = 16.
+
+	b) n = 32: 260 cost units. The same logic from n = 16 carries over to here. We have 32 constant time operations
+	responsible for each push. We have 12 resizes. As n gets larger, the cost of each resize will grow linearly.
+	This leads us to our conclusion:
+
+	c) The total procedure is O(n) complexity. We can approximate the cost of the function where n grows arbitrarily
+	large using a function like the one below:
+
+		O(f(n)) = (c1 * n) + (c2 * x * n) + c
+		... where:
+			c1 = the constant time needed for each O(1) operation
+			n = the number of elements to be processed, i.e. pushed onto the array
+			c2 = the time required for resizing
+			x = the number of resizes required
+			c = all other unspecified constant time operations
+
+		This tells us the total procedure's execution cost. However, executing a single push function when
+		n is arbitrarily large would have an average cost of O(1+) because the push could fall on either 
+		an instance of not requiring a resize or an instance of requiring a resize.
+
+3. I will answer this question in an abstracted fashion (considering the n as a generalized # of elements). First, we must realize O(n^2) means that all n elements are processed n number of times. This can be 
+created given the pop and push methods enumerated:
+
+		i) cap = n/2, size = 0. Proceed to one-by-one push n/2 elements in the array until size = n/2.
+			The array must now be RESIZED.
+		ii) cap is now 2(n/2) = n. Size is still n/2. Pop an element off to produce (n/2) - 1 size.
+		iii) Size is now less than or equal to half of the capacity. RESIZE. Cap is now again n/2.
+		iv) Add an element. Resize the array. Pop and element. Resize the array.
+		v) complete step iv n times.
+
+		Explanation: each resize takes up O(n) time complexity. If we complete this process n times,
+		each element is processed n * n times to produce an overall complexity of O(n^2) for the given sequence.
+		This is because the resizing methods use the midway element of the array as a pivot. If I am one less than
+		the middle of the capacity, it shrinks the capacity by half. Then, if I increase the size by one, it doubles 
+		the capacity again. This could be problematic from a complexity perspective if there arose a situation 
+		where it was necessary to pop and push one after the other and the array's size happened to be hovering 
+		around the halfway mark of the capacity.
+
+	My recommendation for avoiding this problem: since here we are mostly considering time execution constraints and
+	and not memory usage/complexity, I would advise simply implementing the strategy for resizing from part 1 of this
+	question. It unleashes hell on the memory but it's not prone to time execution blunders like this one. HOWEVER, this 
+	answer does not attempt to solve the shrink problem itself, so here is my suggestion: the algorithm must be more choosy
+	in deciding when to split the array in half. So, I would do the following. Maintain a counter called popCounter and
+	another counter called tempCounter. Subtract the current capacity by half the current capacity and set popCounter
+	equal to this number. For each CONSECUTIVE pop, increment tempCounter. If tempCounter is equal to popCounter, split 
+	the array in half. If there is a push, set tempCounter equal to 0. 
